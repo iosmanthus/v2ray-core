@@ -2,6 +2,7 @@ package conf
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"strings"
 
@@ -156,6 +157,21 @@ func (v *PortRange) Build() *net.PortRange {
 		From: v.From,
 		To:   v.To,
 	}
+}
+
+func (v *PortRange) MarshalJSON() ([]byte, error) {
+	if v.From > v.To {
+		return nil, newError("invalid port range ", v.From, " -> ", v.To)
+	}
+
+	var data []byte
+	if v.From == v.To {
+		data = []byte(fmt.Sprintf("%d", v.From))
+	} else {
+		data = []byte(fmt.Sprintf("%d-%d", v.From, v.To))
+	}
+
+	return data, nil
 }
 
 // UnmarshalJSON implements encoding/json.Unmarshaler.UnmarshalJSON
